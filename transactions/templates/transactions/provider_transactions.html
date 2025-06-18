@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ provider }} Transactions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container my-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>{{ provider }} Transactions</h2>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">← Back to Dashboard</a>
+    </div>
+
+    <!-- Search -->
+    <form method="get" class="mb-3 row g-2">
+        <div class="col">
+            <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search by ref, phone, or type">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+
+    {% if transactions %}
+        <table class="table table-bordered table-hover shadow-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th>Date</th>
+                    <th>Ref ID</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Phone</th>
+                    <th>Name</th>
+                    <th>Balance</th>
+                    <th>Fee</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transactions %}
+                    <tr>
+                        <td>{{ t.date_transaction|date:"d-m-Y H:i" }}</td>
+                        <td>{{ t.reference_id }}</td>
+                        <td>{{ t.type }}</td>
+                        <td>{{ t.amount }}</td>
+                        <td>{{ t.customer_phone }}</td>
+                        <td>{{ t.customer_name }}</td>
+                        <td>{{ t.balance }}</td>
+                        <td>{{ t.transaction_fee }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if transactions.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?q={{ query }}&page={{ transactions.previous_page_number }}">«</a>
+                    </li>
+                {% endif %}
+
+                {% for num in transactions.paginator.page_range %}
+                    {% if transactions.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num >= transactions.number|add:'-2' and num <= transactions.number|add:'2' %}
+                        <li class="page-item"><a class="page-link" href="?q={{ query }}&page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if transactions.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?q={{ query }}&page={{ transactions.next_page_number }}">»</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+
+    {% else %}
+        <div class="alert alert-warning">No transactions found.</div>
+    {% endif %}
+
+</div>
+</body>
+</html>
